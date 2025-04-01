@@ -1,8 +1,61 @@
-Yarn to build
-Yarn start to run. 
+
+
+Tools:
+
+```
+tools: [
+      {
+        name: "get_pull_request_review",
+        description: "Get a specific pull request review",
+        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestReviewSchema)
+      },
+      {
+        name: "get_pull_request_comment",
+        description: "Get a specific pull request review comment",
+        inputSchema: zodToJsonSchema(pullRequestComments.GetPullRequestCommentSchema)
+      },
+      {
+        name: "reply_to_pull_request_comment",
+        description: "Add a reply to a specific pull request review comment",
+        inputSchema: zodToJsonSchema(pullRequestComments.ReplyToPullRequestCommentSchema)
+      },
+      {
+        name: "resolve_pull_request_review_thread",
+        description: "Mark a pull request review thread as resolved",
+        inputSchema: zodToJsonSchema(pullRequestReviews.ResolvePullRequestReviewThreadSchema)
+      },
+      {
+        name: "check_pull_request_review_resolution",
+        description: "Check if all threads in a pull request review are resolved",
+        inputSchema: zodToJsonSchema(pullRequestReviews.CheckPullRequestReviewResolutionSchema)
+      },
+      {
+        name: "get_pull_request_review_threads",
+        description: "Get the threads in a specific pull request review",
+        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestReviewThreadsSchema)
+      },
+      {
+        name: "get_pull_request_threads",
+        description: "Get all review threads for a pull request in a single call",
+        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestThreadsSchema)
+      },
+      {
+        name: "get_pull_request_thread",
+        description: "Get a single pull request review thread with complete comment details",
+        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestThreadSchema)
+      }
+    ],
+```
+
+install manually:
+
+```
+Yarn && Yarn start
+```
 
 Install into cursor:
 
+```
 {
   "mcpServers": {
     "github-pr-review-tools": {
@@ -14,6 +67,7 @@ Install into cursor:
     }
   }
 }
+```
 
 
 ## Build
