@@ -8,13 +8,6 @@ import {
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
-import * as repository from './operations/repository.js';
-import * as files from './operations/files.js';
-import * as issues from './operations/issues.js';
-import * as pulls from './operations/pulls.js';
-import * as branches from './operations/branches.js';
-import * as search from './operations/search.js';
-import * as commits from './operations/commits.js';
 import {
   GitHubError,
   GitHubValidationError,
@@ -25,12 +18,16 @@ import {
   GitHubConflictError,
   isGitHubError,
 } from './common/errors.js';
-import { VERSION } from "./common/version.js";
+
+
+// Import the new modules
+import * as pullRequestComments from "./operations/pull_request_comments.js";
+import * as pullRequestReviews from "./operations/pull_request_reviews.js";
 
 const server = new Server(
   {
-    name: "github-mcp-server",
-    version: VERSION,
+    name: "github-mcp-server-review-tools",
+    version: "0.0.1",
   },
   {
     capabilities: {
@@ -66,134 +63,44 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: "create_or_update_file",
-        description: "Create or update a single file in a GitHub repository",
-        inputSchema: zodToJsonSchema(files.CreateOrUpdateFileSchema),
+        name: "get_pull_request_review",
+        description: "Get a specific pull request review",
+        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestReviewSchema)
       },
       {
-        name: "search_repositories",
-        description: "Search for GitHub repositories",
-        inputSchema: zodToJsonSchema(repository.SearchRepositoriesSchema),
+        name: "get_pull_request_comment",
+        description: "Get a specific pull request review comment",
+        inputSchema: zodToJsonSchema(pullRequestComments.GetPullRequestCommentSchema)
       },
       {
-        name: "create_repository",
-        description: "Create a new GitHub repository in your account",
-        inputSchema: zodToJsonSchema(repository.CreateRepositoryOptionsSchema),
+        name: "reply_to_pull_request_comment",
+        description: "Add a reply to a specific pull request review comment",
+        inputSchema: zodToJsonSchema(pullRequestComments.ReplyToPullRequestCommentSchema)
       },
       {
-        name: "get_file_contents",
-        description: "Get the contents of a file or directory from a GitHub repository",
-        inputSchema: zodToJsonSchema(files.GetFileContentsSchema),
+        name: "resolve_pull_request_review_thread",
+        description: "Mark a pull request review thread as resolved",
+        inputSchema: zodToJsonSchema(pullRequestReviews.ResolvePullRequestReviewThreadSchema)
       },
       {
-        name: "push_files",
-        description: "Push multiple files to a GitHub repository in a single commit",
-        inputSchema: zodToJsonSchema(files.PushFilesSchema),
+        name: "check_pull_request_review_resolution",
+        description: "Check if all threads in a pull request review are resolved",
+        inputSchema: zodToJsonSchema(pullRequestReviews.CheckPullRequestReviewResolutionSchema)
       },
       {
-        name: "create_issue",
-        description: "Create a new issue in a GitHub repository",
-        inputSchema: zodToJsonSchema(issues.CreateIssueSchema),
+        name: "get_pull_request_review_threads",
+        description: "Get the threads in a specific pull request review",
+        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestReviewThreadsSchema)
       },
       {
-        name: "create_pull_request",
-        description: "Create a new pull request in a GitHub repository",
-        inputSchema: zodToJsonSchema(pulls.CreatePullRequestSchema),
+        name: "get_pull_request_threads",
+        description: "Get all review threads for a pull request in a single call",
+        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestThreadsSchema)
       },
       {
-        name: "fork_repository",
-        description: "Fork a GitHub repository to your account or specified organization",
-        inputSchema: zodToJsonSchema(repository.ForkRepositorySchema),
-      },
-      {
-        name: "create_branch",
-        description: "Create a new branch in a GitHub repository",
-        inputSchema: zodToJsonSchema(branches.CreateBranchSchema),
-      },
-      {
-        name: "list_commits",
-        description: "Get list of commits of a branch in a GitHub repository",
-        inputSchema: zodToJsonSchema(commits.ListCommitsSchema)
-      },
-      {
-        name: "list_issues",
-        description: "List issues in a GitHub repository with filtering options",
-        inputSchema: zodToJsonSchema(issues.ListIssuesOptionsSchema)
-      },
-      {
-        name: "update_issue",
-        description: "Update an existing issue in a GitHub repository",
-        inputSchema: zodToJsonSchema(issues.UpdateIssueOptionsSchema)
-      },
-      {
-        name: "add_issue_comment",
-        description: "Add a comment to an existing issue",
-        inputSchema: zodToJsonSchema(issues.IssueCommentSchema)
-      },
-      {
-        name: "search_code",
-        description: "Search for code across GitHub repositories",
-        inputSchema: zodToJsonSchema(search.SearchCodeSchema),
-      },
-      {
-        name: "search_issues",
-        description: "Search for issues and pull requests across GitHub repositories",
-        inputSchema: zodToJsonSchema(search.SearchIssuesSchema),
-      },
-      {
-        name: "search_users",
-        description: "Search for users on GitHub",
-        inputSchema: zodToJsonSchema(search.SearchUsersSchema),
-      },
-      {
-        name: "get_issue",
-        description: "Get details of a specific issue in a GitHub repository.",
-        inputSchema: zodToJsonSchema(issues.GetIssueSchema)
-      },
-      {
-        name: "get_pull_request",
-        description: "Get details of a specific pull request",
-        inputSchema: zodToJsonSchema(pulls.GetPullRequestSchema)
-      },
-      {
-        name: "list_pull_requests",
-        description: "List and filter repository pull requests",
-        inputSchema: zodToJsonSchema(pulls.ListPullRequestsSchema)
-      },
-      {
-        name: "create_pull_request_review",
-        description: "Create a review on a pull request",
-        inputSchema: zodToJsonSchema(pulls.CreatePullRequestReviewSchema)
-      },
-      {
-        name: "merge_pull_request",
-        description: "Merge a pull request",
-        inputSchema: zodToJsonSchema(pulls.MergePullRequestSchema)
-      },
-      {
-        name: "get_pull_request_files",
-        description: "Get the list of files changed in a pull request",
-        inputSchema: zodToJsonSchema(pulls.GetPullRequestFilesSchema)
-      },
-      {
-        name: "get_pull_request_status",
-        description: "Get the combined status of all status checks for a pull request",
-        inputSchema: zodToJsonSchema(pulls.GetPullRequestStatusSchema)
-      },
-      {
-        name: "update_pull_request_branch",
-        description: "Update a pull request branch with the latest changes from the base branch",
-        inputSchema: zodToJsonSchema(pulls.UpdatePullRequestBranchSchema)
-      },
-      {
-        name: "get_pull_request_comments",
-        description: "Get the review comments on a pull request",
-        inputSchema: zodToJsonSchema(pulls.GetPullRequestCommentsSchema)
-      },
-      {
-        name: "get_pull_request_reviews",
-        description: "Get the reviews on a pull request",
-        inputSchema: zodToJsonSchema(pulls.GetPullRequestReviewsSchema)
+        name: "get_pull_request_thread",
+        description: "Get a single pull request review thread with complete comment details",
+        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestThreadSchema)
       }
     ],
   };
@@ -206,253 +113,84 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     switch (request.params.name) {
-      case "fork_repository": {
-        const args = repository.ForkRepositorySchema.parse(request.params.arguments);
-        const fork = await repository.forkRepository(args.owner, args.repo, args.organization);
-        return {
-          content: [{ type: "text", text: JSON.stringify(fork, null, 2) }],
-        };
-      }
-
-      case "create_branch": {
-        const args = branches.CreateBranchSchema.parse(request.params.arguments);
-        const branch = await branches.createBranchFromRef(
+      case "get_pull_request_review": {
+        const args = pullRequestReviews.GetPullRequestReviewSchema.parse(request.params.arguments);
+        const review = await pullRequestReviews.getPullRequestReview(
           args.owner,
           args.repo,
-          args.branch,
-          args.from_branch
+          args.pull_number,
+          args.review_id
         );
-        return {
-          content: [{ type: "text", text: JSON.stringify(branch, null, 2) }],
-        };
-      }
-
-      case "search_repositories": {
-        const args = repository.SearchRepositoriesSchema.parse(request.params.arguments);
-        const results = await repository.searchRepositories(
-          args.query,
-          args.page,
-          args.perPage
-        );
-        return {
-          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-        };
-      }
-
-      case "create_repository": {
-        const args = repository.CreateRepositoryOptionsSchema.parse(request.params.arguments);
-        const result = await repository.createRepository(args);
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-        };
-      }
-
-      case "get_file_contents": {
-        const args = files.GetFileContentsSchema.parse(request.params.arguments);
-        const contents = await files.getFileContents(
-          args.owner,
-          args.repo,
-          args.path,
-          args.branch
-        );
-        return {
-          content: [{ type: "text", text: JSON.stringify(contents, null, 2) }],
-        };
-      }
-
-      case "create_or_update_file": {
-        const args = files.CreateOrUpdateFileSchema.parse(request.params.arguments);
-        const result = await files.createOrUpdateFile(
-          args.owner,
-          args.repo,
-          args.path,
-          args.content,
-          args.message,
-          args.branch,
-          args.sha
-        );
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-        };
-      }
-
-      case "push_files": {
-        const args = files.PushFilesSchema.parse(request.params.arguments);
-        const result = await files.pushFiles(
-          args.owner,
-          args.repo,
-          args.branch,
-          args.files,
-          args.message
-        );
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-        };
-      }
-
-      case "create_issue": {
-        const args = issues.CreateIssueSchema.parse(request.params.arguments);
-        const { owner, repo, ...options } = args;
-        const issue = await issues.createIssue(owner, repo, options);
-        return {
-          content: [{ type: "text", text: JSON.stringify(issue, null, 2) }],
-        };
-      }
-
-      case "create_pull_request": {
-        const args = pulls.CreatePullRequestSchema.parse(request.params.arguments);
-        const pullRequest = await pulls.createPullRequest(args);
-        return {
-          content: [{ type: "text", text: JSON.stringify(pullRequest, null, 2) }],
-        };
-      }
-
-      case "search_code": {
-        const args = search.SearchCodeSchema.parse(request.params.arguments);
-        const results = await search.searchCode(args);
-        return {
-          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-        };
-      }
-
-      case "search_issues": {
-        const args = search.SearchIssuesSchema.parse(request.params.arguments);
-        const results = await search.searchIssues(args);
-        return {
-          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-        };
-      }
-
-      case "search_users": {
-        const args = search.SearchUsersSchema.parse(request.params.arguments);
-        const results = await search.searchUsers(args);
-        return {
-          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-        };
-      }
-
-      case "list_issues": {
-        const args = issues.ListIssuesOptionsSchema.parse(request.params.arguments);
-        const { owner, repo, ...options } = args;
-        const result = await issues.listIssues(owner, repo, options);
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-        };
-      }
-
-      case "update_issue": {
-        const args = issues.UpdateIssueOptionsSchema.parse(request.params.arguments);
-        const { owner, repo, issue_number, ...options } = args;
-        const result = await issues.updateIssue(owner, repo, issue_number, options);
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-        };
-      }
-
-      case "add_issue_comment": {
-        const args = issues.IssueCommentSchema.parse(request.params.arguments);
-        const { owner, repo, issue_number, body } = args;
-        const result = await issues.addIssueComment(owner, repo, issue_number, body);
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-        };
-      }
-
-      case "list_commits": {
-        const args = commits.ListCommitsSchema.parse(request.params.arguments);
-        const results = await commits.listCommits(
-          args.owner,
-          args.repo,
-          args.page,
-          args.perPage,
-          args.sha
-        );
-        return {
-          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-        };
-      }
-
-      case "get_issue": {
-        const args = issues.GetIssueSchema.parse(request.params.arguments);
-        const issue = await issues.getIssue(args.owner, args.repo, args.issue_number);
-        return {
-          content: [{ type: "text", text: JSON.stringify(issue, null, 2) }],
-        };
-      }
-
-      case "get_pull_request": {
-        const args = pulls.GetPullRequestSchema.parse(request.params.arguments);
-        const pullRequest = await pulls.getPullRequest(args.owner, args.repo, args.pull_number);
-        return {
-          content: [{ type: "text", text: JSON.stringify(pullRequest, null, 2) }],
-        };
-      }
-
-      case "list_pull_requests": {
-        const args = pulls.ListPullRequestsSchema.parse(request.params.arguments);
-        const { owner, repo, ...options } = args;
-        const pullRequests = await pulls.listPullRequests(owner, repo, options);
-        return {
-          content: [{ type: "text", text: JSON.stringify(pullRequests, null, 2) }],
-        };
-      }
-
-      case "create_pull_request_review": {
-        const args = pulls.CreatePullRequestReviewSchema.parse(request.params.arguments);
-        const { owner, repo, pull_number, ...options } = args;
-        const review = await pulls.createPullRequestReview(owner, repo, pull_number, options);
         return {
           content: [{ type: "text", text: JSON.stringify(review, null, 2) }],
         };
       }
 
-      case "merge_pull_request": {
-        const args = pulls.MergePullRequestSchema.parse(request.params.arguments);
-        const { owner, repo, pull_number, ...options } = args;
-        const result = await pulls.mergePullRequest(owner, repo, pull_number, options);
+      case "get_pull_request_comment": {
+        const args = pullRequestComments.GetPullRequestCommentSchema.parse(request.params.arguments);
+        const comment = await pullRequestComments.getPullRequestComment(
+          args.owner,
+          args.repo,
+          args.comment_id
+        );
         return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+          content: [{ type: "text", text: JSON.stringify(comment, null, 2) }],
         };
       }
 
-      case "get_pull_request_files": {
-        const args = pulls.GetPullRequestFilesSchema.parse(request.params.arguments);
-        const files = await pulls.getPullRequestFiles(args.owner, args.repo, args.pull_number);
+      case "reply_to_pull_request_comment": {
+        const args = pullRequestComments.ReplyToPullRequestCommentSchema.parse(request.params.arguments);
+        const comment = await pullRequestComments.replyToPullRequestComment(
+          args.owner,
+          args.repo,
+          args.pull_number,
+          args.comment_id,
+          args.body
+        );
         return {
-          content: [{ type: "text", text: JSON.stringify(files, null, 2) }],
+          content: [{ type: "text", text: JSON.stringify(comment, null, 2) }],
         };
       }
 
-      case "get_pull_request_status": {
-        const args = pulls.GetPullRequestStatusSchema.parse(request.params.arguments);
-        const status = await pulls.getPullRequestStatus(args.owner, args.repo, args.pull_number);
+      case "resolve_pull_request_review_thread": {
+        const args = pullRequestReviews.ResolvePullRequestReviewThreadSchema.parse(request.params.arguments);
+        try {
+          const result = await pullRequestReviews.resolvePullRequestReviewThread(
+            args.thread_id
+          );
+          
+          // Remove debug info from the response unless specifically requested
+          const cleanResult = {
+            success: result.success,
+            message: result.message
+          };
+          
+          return {
+            content: [{ type: "text", text: JSON.stringify(cleanResult, null, 2) }],
+          };
+        } catch (error) {
+          // This should not happen with the new implementation, but just in case
+          throw new Error(`Failed to resolve review thread: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      case "get_pull_request_threads": {
+        const args = pullRequestReviews.GetPullRequestThreadsSchema.parse(request.params.arguments);
+        const threads = await pullRequestReviews.getPullRequestThreads(
+          args.owner,
+          args.repo,
+          args.pull_number
+        );
         return {
-          content: [{ type: "text", text: JSON.stringify(status, null, 2) }],
+          content: [{ type: "text", text: JSON.stringify(threads, null, 2) }],
         };
       }
 
-      case "update_pull_request_branch": {
-        const args = pulls.UpdatePullRequestBranchSchema.parse(request.params.arguments);
-        const { owner, repo, pull_number, expected_head_sha } = args;
-        await pulls.updatePullRequestBranch(owner, repo, pull_number, expected_head_sha);
+      case "get_pull_request_thread": {
+        const args = pullRequestReviews.GetPullRequestThreadSchema.parse(request.params.arguments);
+        const thread = await pullRequestReviews.getPullRequestThread(args.thread_id);
         return {
-          content: [{ type: "text", text: JSON.stringify({ success: true }, null, 2) }],
-        };
-      }
-
-      case "get_pull_request_comments": {
-        const args = pulls.GetPullRequestCommentsSchema.parse(request.params.arguments);
-        const comments = await pulls.getPullRequestComments(args.owner, args.repo, args.pull_number);
-        return {
-          content: [{ type: "text", text: JSON.stringify(comments, null, 2) }],
-        };
-      }
-
-      case "get_pull_request_reviews": {
-        const args = pulls.GetPullRequestReviewsSchema.parse(request.params.arguments);
-        const reviews = await pulls.getPullRequestReviews(args.owner, args.repo, args.pull_number);
-        return {
-          content: [{ type: "text", text: JSON.stringify(reviews, null, 2) }],
+          content: [{ type: "text", text: JSON.stringify(thread, null, 2) }],
         };
       }
 

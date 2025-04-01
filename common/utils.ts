@@ -1,6 +1,7 @@
 import { getUserAgent } from "universal-user-agent";
 import { createGitHubError } from "./errors.js";
-import { VERSION } from "./version.js";
+
+const VERSION = "0.0.1";
 
 type RequestOptions = {
   method?: string;
