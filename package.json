@@ -14,10 +14,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc && shx chmod +x dist/*.js",
+    "build": "tsc",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.0.1",
@@ -25,12 +28,12 @@
     "@types/node-fetch": "^2.6.12",
     "node-fetch": "^3.3.2",
     "universal-user-agent": "^7.0.2",
-    "zod": "^3.22.4",
-    "zod-to-json-schema": "^3.23.5"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.15",
     "shx": "^0.3.4",
-    "typescript": "^5.6.2"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+    "typescript": "^5.6.2",
+    "vitest": "^4.0.15"
+  }
 }
