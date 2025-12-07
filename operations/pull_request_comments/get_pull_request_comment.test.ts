@@ -9,7 +9,7 @@ vi.mock('../../common/utils.js', async () => {
     };
 });
 
-import { getPullRequestComment, GetPullRequestCommentSchema, execute } from './get_pull_request_comment.js';
+import { GetPullRequestCommentSchema, execute } from './get_pull_request_comment.js';
 import toolSpec from './get_pull_request_comment.js';
 
 describe('get_pull_request_comment', () => {

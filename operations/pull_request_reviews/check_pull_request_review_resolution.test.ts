@@ -9,7 +9,7 @@ vi.mock('../../common/utils.js', async () => {
     };
 });
 
-import { checkPullRequestReviewResolution, CheckPullRequestReviewResolutionSchema, execute } from './check_pull_request_review_resolution.js';
+import { CheckPullRequestReviewResolutionSchema, execute } from './check_pull_request_review_resolution.js';
 import toolSpec from './check_pull_request_review_resolution.js';
 
 describe('check_pull_request_review_resolution', () => {

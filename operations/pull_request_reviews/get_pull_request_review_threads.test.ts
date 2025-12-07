@@ -9,7 +9,7 @@ vi.mock('../../common/utils.js', async () => {
     };
 });
 
-import { getPullRequestReviewThreads, GetPullRequestReviewThreadsSchema, execute } from './get_pull_request_review_threads.js';
+import { GetPullRequestReviewThreadsSchema, execute } from './get_pull_request_review_threads.js';
 import toolSpec from './get_pull_request_review_threads.js';
 
 describe('get_pull_request_review_threads', () => {
