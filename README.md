@@ -1,84 +1,61 @@
+# GitHub MCP Server — PR Review Tools
 
+Model Context Protocol (MCP) server that exposes GitHub pull request review operations as tools.
 
-Tools:
+## Requirements
 
-```
-tools: [
-      {
-        name: "get_pull_request_review",
-        description: "Get a specific pull request review",
-        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestReviewSchema)
-      },
-      {
-        name: "get_pull_request_comment",
-        description: "Get a specific pull request review comment",
-        inputSchema: zodToJsonSchema(pullRequestComments.GetPullRequestCommentSchema)
-      },
-      {
-        name: "reply_to_pull_request_comment",
-        description: "Add a reply to a specific pull request review comment",
-        inputSchema: zodToJsonSchema(pullRequestComments.ReplyToPullRequestCommentSchema)
-      },
-      {
-        name: "resolve_pull_request_review_thread",
-        description: "Mark a pull request review thread as resolved",
-        inputSchema: zodToJsonSchema(pullRequestReviews.ResolvePullRequestReviewThreadSchema)
-      },
-      {
-        name: "check_pull_request_review_resolution",
-        description: "Check if all threads in a pull request review are resolved",
-        inputSchema: zodToJsonSchema(pullRequestReviews.CheckPullRequestReviewResolutionSchema)
-      },
-      {
-        name: "get_pull_request_review_threads",
-        description: "Get the threads in a specific pull request review",
-        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestReviewThreadsSchema)
-      },
-      {
-        name: "get_pull_request_threads",
-        description: "Get all review threads for a pull request in a single call",
-        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestThreadsSchema)
-      },
-      {
-        name: "get_pull_request_thread",
-        description: "Get a single pull request review thread with complete comment details",
-        inputSchema: zodToJsonSchema(pullRequestReviews.GetPullRequestThreadSchema)
-      }
-    ],
+- `GITHUB_PERSONAL_ACCESS_TOKEN` **must** be set before starting the server.
+- Token scopes:
+  - `repo` for private repositories
+  - `public_repo` is enough for public repositories
+
+## Available Tools
+
+| Name                                      | What it does                                                      | Key inputs                                 |
+| ----------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------ |
+| get_pull_request_review                   | Get a specific pull request review                                | owner, repo, pull_number, review_id        |
+| get_pull_request_comment                  | Get a specific pull request review comment                        | owner, repo, comment_id                    |
+| reply_to_pull_request_comment             | Reply to a specific pull request review comment                   | owner, repo, pull_number, comment_id, body |
+| get_pull_request_threads                  | List all review threads for a pull request                        | owner, repo, pull_number                   |
+| get_pull_request_thread                   | Fetch one review thread with comments                             | thread_id                                  |
+| get_pull_request_threads_batch            | Fetch multiple review threads (with comments) in one GraphQL call | thread_ids[]                               |
+| get_pull_request_review_threads           | List threads belonging to a specific review                       | owner, repo, pull_number, review_id        |
+| check_pull_request_review_resolution      | Check whether all threads in a review are resolved                | owner, repo, pull_number, review_id        |
+| resolve_pull_request_review_thread        | Mark a single review thread as resolved                           | thread_id                                  |
+| resolve_pull_request_review_threads_batch | Resolve multiple review threads in one call                       | thread_ids[]                               |
+
+## Install & Run
+
+```bash
+npm install
+npm run build
+npm start
 ```
 
-install manually:
+To use in Cursor/Claude/other MCP clients, configure a server entry similar to:
 
-```
-Yarn && Yarn start
-```
-
-Install into cursor:
-
-```
+```json
 {
   "mcpServers": {
     "github-pr-review-tools": {
       "command": "node",
-      "args": ["~/Code/github-server-only/dist/index.js"], #put your repo location
+      "args": ["/path/to/repo/dist/index.js"],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": <your code here>
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<your token here>"
       }
     }
   }
 }
 ```
 
-
-## Build
-
-Docker build: (haven't tested)
+## Testing
 
 ```bash
-docker build -t mcp/github -f src/github/Dockerfile .
+npm test
 ```
 
 ## License
 
-MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
+MIT License.
 
+MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.

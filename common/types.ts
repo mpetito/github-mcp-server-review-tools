@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+// Tool spec interface for MCP tools
+export interface ToolSpec<TSchema extends z.ZodType = z.ZodType> {
+  name: string;
+  description: string;
+  schema: TSchema;
+  execute: (args: z.infer<TSchema>) => Promise<unknown>;
+}
+
 // Base schemas for common types
 export const GitHubAuthorSchema = z.object({
   name: z.string(),
