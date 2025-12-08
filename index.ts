@@ -88,14 +88,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const args = tool.schema.parse(request.params.arguments);
     const result = await tool.execute(args);
 
-    // Handle special case for resolve_pull_request_review_thread to clean response
-    if (toolName === "resolve_pull_request_review_thread") {
-      const typedResult = result as { success: boolean; message: string };
-      return {
-        content: [{ type: "text", text: JSON.stringify({ success: typedResult.success, message: typedResult.message }, null, 2) }],
-      };
-    }
-
     return {
       content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
     };
